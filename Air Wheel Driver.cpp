@@ -3,8 +3,13 @@
 
 #include "framework.h"
 #include "Air Wheel Driver.h"
+#include "opencv2\opencv.hpp"
+#include "opencv2\highgui.hpp"
 
 #define MAX_LOADSTRING 100
+
+using namespace cv;
+using namespace std;
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
