@@ -6,10 +6,16 @@
 #include "opencv2\opencv.hpp"
 #include "opencv2\highgui.hpp"
 
+#include "windows.h"
+#include "Xinput.h"
+//#include "Client.h"
+#pragma comment(lib, "setupapi.lib")
+
+
+#define WIN32_LEAN_AND_MEAN
 #define MAX_LOADSTRING 100
 
 using namespace cv;
-using namespace std;
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -22,6 +28,10 @@ BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
+//
+VideoCapture cap(0);
+Mat frame;
+//
 
 // [Main Function of Application] 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -45,6 +55,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+    if (!cap.isOpened())
+        return -1;
+
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_AIRWHEELDRIVER));
 
     MSG msg;
@@ -58,6 +71,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        //
+
+        cap >> frame;
+        imshow("Webcam Window", frame);
+
+        //
+
     }
 
     return (int)msg.wParam;
@@ -162,6 +183,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
     }
     break;
+    // create message sent when window is created, in this case is when program opens
     case WM_CREATE:
     {
             CreateWindow(
@@ -179,6 +201,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             );
         break;
     }
+    // paint message sent when system or another app makes a request to paint portion of window
+    // i.e window snapping and min/max
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -188,10 +212,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         TCHAR greeting[] = _T("Hello World!");
         TextOut(hdc, 5, 5, greeting, _tcslen(greeting));
 
-
         EndPaint(hWnd, &ps);
     }
     break;
+    // when window is closed
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -202,6 +226,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 // Message handler for about box.
+// Processes messages for about dialog box
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
