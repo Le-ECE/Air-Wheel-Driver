@@ -8,7 +8,7 @@
 
 #include "windows.h"
 #include "Xinput.h"
-//#include "Client.h"
+#include "ViGEm/Client.h"
 #pragma comment(lib, "setupapi.lib")
 
 
@@ -31,6 +31,12 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 //
 VideoCapture cap(0);
 Mat frame;
+XINPUT_STATE state;
+const auto client = vigem_alloc();
+const auto retval = vigem_connect(client);
+const auto pad = vigem_target_x360_alloc();
+const auto pir = vigem_target_add(client, pad);
+
 //
 
 // [Main Function of Application] 
@@ -55,12 +61,29 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_AIRWHEELDRIVER));
+    MSG msg;
+
     if (!cap.isOpened())
         return -1;
 
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_AIRWHEELDRIVER));
+    if (client == nullptr)
+    {
+        std::cerr << "Uh, not enough memory to do that?!" << std::endl;
+        return -1;
+    }
 
-    MSG msg;
+    if (!VIGEM_SUCCESS(retval))
+    {
+        std::cerr << "ViGEm Bus connection failed with error code: 0x" << std::hex << retval << std::endl;
+        return -1;
+    }
+
+    if (!VIGEM_SUCCESS(pir))
+    {
+        std::cerr << "Target plugin failed with error code: 0x" << std::hex << pir << std::endl;
+        return -1;
+    }
 
     // Main message loop:
     // [Dispatches message to WndProc]
@@ -74,6 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         //
 
+        vigem_target_x360_update(client, pad, *reinterpret_cast<XUSB_REPORT*>(&state.Gamepad));
         cap >> frame;
         imshow("Webcam Window", frame);
 
