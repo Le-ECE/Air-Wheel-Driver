@@ -24,6 +24,7 @@ Yu Zhang
 #include "iostream"
 #include <string>
 #include "stdio.h"
+#include <thread>
 
 // Additional Libraries
 #pragma comment(lib, "setupapi.lib")
@@ -77,6 +78,8 @@ Mat frame;                                      // Matrix containing frame value
 
 // Driver Variables
 GESTURE gestureList[10];
+SHORT gestureSelect;
+GESTURE currentGesture; // Current gesture to be determined by hand tracking
 
 
 //char buffer[100];
@@ -138,21 +141,21 @@ int APIENTRY wWinMain(
     const auto pir = vigem_target_add(client, pad); // Adds client to bus (Plugs in controller)
     
     // Gesture List Initialization (TEST)
-    GESTURE currentGesture; // Current gesture to be determined by hand tracking
+
 
     gestureList[0].gestureName = "Move Forward";
     gestureList[0].assignedAction = assignAction(0, 'N', 'C', 'U', 'U');        // Reads values from sliders and boxes set by user
-    gestureList[0].leftThumbSens = 1;
-    gestureList[0].rightThumbSens = 1;
-    gestureList[0].leftTriggerSens = 1;
-    gestureList[0].rightTriggerSens = 1;
+    gestureList[0].leftThumbSens = 100;
+    gestureList[0].rightThumbSens = 100;
+    gestureList[0].leftTriggerSens = 100;
+    gestureList[0].rightTriggerSens = 100;
 
     gestureList[1].gestureName = "Drive Forward";
     gestureList[1].assignedAction = assignAction(0, 'C', 'C', 'U', 'P');
-    gestureList[1].leftThumbSens = 1;
-    gestureList[1].rightThumbSens = 1;
-    gestureList[1].leftTriggerSens = 1;
-    gestureList[1].rightTriggerSens = 1;
+    gestureList[1].leftThumbSens = 5;
+    gestureList[1].rightThumbSens = 5;
+    gestureList[1].leftTriggerSens = 5;
+    gestureList[1].rightTriggerSens = 5;
 
     gestureList[2].gestureName = "Jump";
     gestureList[2].assignedAction = assignAction(XUSB_GAMEPAD_A, 'C', 'C', 'U', 'U');
@@ -163,12 +166,13 @@ int APIENTRY wWinMain(
 
     gestureList[3].gestureName = "Running Jump";
     gestureList[3].assignedAction = assignAction(XUSB_GAMEPAD_A, 'N', 'C', 'U', 'U');
-    gestureList[3].leftThumbSens = 1;
-    gestureList[3].rightThumbSens = 1;
-    gestureList[3].leftTriggerSens = 1;
-    gestureList[3].rightTriggerSens = 1;
+    gestureList[3].leftThumbSens = 5;
+    gestureList[3].rightThumbSens = 5;
+    gestureList[3].leftTriggerSens = 5;
+    gestureList[3].rightTriggerSens = 5;
 
-    currentGesture = gestureList[1];  // MUST go after gesture declarations
+    gestureSelect = 0;
+    currentGesture = gestureList[gestureSelect];  // MUST go after gesture declarations
     
     XUSB_REPORT report;
     XUSB_REPORT_INIT(&report);
@@ -197,15 +201,14 @@ int APIENTRY wWinMain(
     Dispatches message to WndProc
     Also used for polling applications
     */
-    while (GetMessage(&msg, nullptr, 0, 0)){
-       if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)){
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-       }
+        }
 
-       // Button Press
+        // Button Press
        report.wButtons = currentGesture.assignedAction.buttonPressed;
-       vigem_target_x360_update(client, pad, report);
 
        // Left Thumbstick
        if (currentGesture.assignedAction.leftThumbDirection == 'N') {
@@ -322,7 +325,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         szTitle,
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
-        200, 200,
+        600, 600,
         NULL,
         NULL,
         hInstance,
@@ -371,6 +374,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
         }
+
+        if (hWnd == BN_CLICKED && lParam!= 0) {
+            if (gestureSelect == 0)
+                gestureSelect = 1;
+            else if (gestureSelect == 1)
+                gestureSelect = 0;
+            currentGesture = gestureList[gestureSelect];
+        }
     }
     break;
     // create message sent when window is created, in this case is when program opens
@@ -378,10 +389,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
             CreateWindow(
             L"Button",
-            L"A",
+            L"Gesture 1",
             WS_VISIBLE | WS_CHILD,
-            150, // x
-            140, // y
+            0, // x
+            0, // y
             100,
             40,
             hWnd,
@@ -391,20 +402,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             );
         break;
 
-        CreateWindow(
-            L"Button",
-            L"B",
-            WS_VISIBLE | WS_CHILD,
-            300, // x
-            140, // y
-            100,
-            40,
-            hWnd,
-            NULL,
-            NULL,
-            NULL
-        );
-        break;
+        //CreateWindow(
+         //   L"Button",
+         //   L"Gesture 2",
+         //   WS_VISIBLE | WS_CHILD,
+         //   100, // x
+         //   100, // y
+         //   100,
+         //   40,
+         //   hWnd,
+         //   NULL,
+         //   NULL,
+         //   NULL
+        //);
+        //break;
     }
     // paint message sent when system or another app makes a request to paint portion of window
     // i.e window snapping and min/max
