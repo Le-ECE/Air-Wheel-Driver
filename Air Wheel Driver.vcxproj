@@ -78,13 +78,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenCV\include;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\include\ViGEm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV\x64\vc16\lib;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\opencv\build\include;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\include\ViGEm;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\opencv\build\x64\vc16\lib;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\OpenCV\include;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\include\ViGEm;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV\x64\vc16\lib;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\opencv\build\include;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\include\ViGEm;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\opencv\build\x64\vc16\lib;C:\Users\David Le\source\repos\Le-ECE\Air Wheel Driver\ViGEmClient\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
