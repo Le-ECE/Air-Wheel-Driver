@@ -12,8 +12,9 @@ Yu Zhang
 
 // OpenCV Imports
 #include "Air Wheel Driver.h"
-#include "opencv2\opencv.hpp"
-#include "opencv2\highgui.hpp"
+#include "opencv2/opencv.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 // ViGEm Imports
 #include "ViGEm/Client.h"
@@ -21,7 +22,7 @@ Yu Zhang
 #include "ViGEm/Common.h"
 
 // C/C++ Imports
-#include "iostream"
+#include <iostream>
 #include <string>
 #include "stdio.h"
 #include <thread>
@@ -41,6 +42,7 @@ Yu Zhang
 
 // Namespaces
 using namespace cv;
+using namespace std;
 
 // Struct Declarations
 typedef struct _CONTROLLER {
@@ -65,16 +67,18 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+Mat gray_image(Mat img_gray, Mat img_roi);
+Mat threshold_image(Mat img_gray, Mat img_roi);
 
 // GUI Variables
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
-// insert button variables here
+
 
 // Gesture Variables
-VideoCapture cap(0);                            // Initializes webcam capture
-Mat frame;                                      // Matrix containing frame values
+VideoCapture cam(0);                            // Initializes webcam capture
+Mat img, img_threshold, img_gray, img_roi;
 
 // Driver Variables
 GESTURE gestureList[10];
@@ -105,6 +109,19 @@ CONTROLLER assignAction(
     toAssign.rightTriggerPressed = rightTriggerPressed;
 
     return toAssign;
+}
+
+Mat gray_image(Mat img_gray, Mat img_roi)
+{
+    cvtColor(img_roi, img_gray, COLOR_BGR2GRAY);
+    GaussianBlur(img_gray, img_gray, Size(19, 19), 0.0, 0);
+    return img_gray;
+}
+
+Mat threshold_image(Mat img_gray, Mat img_threshold)
+{
+    threshold(img_gray, img_threshold, 0, 255, THRESH_BINARY_INV + THRESH_OTSU);
+    return img_threshold;
 }
 
 /* Main Function of Application
@@ -143,33 +160,47 @@ int APIENTRY wWinMain(
     // Gesture List Initialization (TEST)
 
 
-    gestureList[0].gestureName = "Move Forward";
-    gestureList[0].assignedAction = assignAction(0, 'N', 'C', 'U', 'U');        // Reads values from sliders and boxes set by user
-    gestureList[0].leftThumbSens = 100;
-    gestureList[0].rightThumbSens = 100;
-    gestureList[0].leftTriggerSens = 100;
-    gestureList[0].rightTriggerSens = 100;
+    gestureList[0].gestureName = "No Input";
+    gestureList[0].assignedAction = assignAction(0, 'C', 'C', 'U', 'U');        
+    gestureList[0].leftThumbSens = 0;
+    gestureList[0].rightThumbSens = 0;
+    gestureList[0].leftTriggerSens = 0;
+    gestureList[0].rightTriggerSens = 0;
 
-    gestureList[1].gestureName = "Drive Forward";
-    gestureList[1].assignedAction = assignAction(0, 'C', 'C', 'U', 'P');
-    gestureList[1].leftThumbSens = 5;
-    gestureList[1].rightThumbSens = 5;
-    gestureList[1].leftTriggerSens = 5;
-    gestureList[1].rightTriggerSens = 5;
+    gestureList[1].gestureName = "Button A";
+    gestureList[1].assignedAction = assignAction(XUSB_GAMEPAD_A, 'C', 'C', 'U', 'U');
+    gestureList[1].leftThumbSens = 0;
+    gestureList[1].rightThumbSens = 0;
+    gestureList[1].leftTriggerSens = 0;
+    gestureList[1].rightTriggerSens = 0;
 
-    gestureList[2].gestureName = "Jump";
-    gestureList[2].assignedAction = assignAction(XUSB_GAMEPAD_A, 'C', 'C', 'U', 'U');
-    gestureList[2].leftThumbSens = 1;
-    gestureList[2].rightThumbSens = 1;
-    gestureList[2].leftTriggerSens = 1;
-    gestureList[2].rightTriggerSens = 1;
+    gestureList[2].gestureName = "Button B";
+    gestureList[2].assignedAction = assignAction(XUSB_GAMEPAD_B, 'C', 'C', 'U', 'U');
+    gestureList[2].leftThumbSens = 0;
+    gestureList[2].rightThumbSens = 0;
+    gestureList[2].leftTriggerSens = 0;
+    gestureList[2].rightTriggerSens = 0;
 
-    gestureList[3].gestureName = "Running Jump";
-    gestureList[3].assignedAction = assignAction(XUSB_GAMEPAD_A, 'N', 'C', 'U', 'U');
-    gestureList[3].leftThumbSens = 5;
-    gestureList[3].rightThumbSens = 5;
-    gestureList[3].leftTriggerSens = 5;
-    gestureList[3].rightTriggerSens = 5;
+    gestureList[3].gestureName = "Button X";
+    gestureList[3].assignedAction = assignAction(XUSB_GAMEPAD_X, 'C', 'C', 'U', 'U');
+    gestureList[3].leftThumbSens = 0;
+    gestureList[3].rightThumbSens = 0;
+    gestureList[3].leftTriggerSens = 0;
+    gestureList[3].rightTriggerSens = 0;
+
+    gestureList[4].gestureName = "Button Y";
+    gestureList[4].assignedAction = assignAction(XUSB_GAMEPAD_Y, 'C', 'C', 'U', 'U');
+    gestureList[4].leftThumbSens = 0;
+    gestureList[4].rightThumbSens = 0;
+    gestureList[4].leftTriggerSens = 0;
+    gestureList[4].rightTriggerSens = 0;
+
+    gestureList[5].gestureName = "Move Forward";
+    gestureList[5].assignedAction = assignAction(0, 'N', 'C', 'U', 'U');
+    gestureList[5].leftThumbSens = 25;
+    gestureList[5].rightThumbSens = 25;
+    gestureList[5].leftTriggerSens = 5;
+    gestureList[5].rightTriggerSens = 5;
 
     gestureSelect = 0;
     currentGesture = gestureList[gestureSelect];  // MUST go after gesture declarations
@@ -178,7 +209,7 @@ int APIENTRY wWinMain(
     XUSB_REPORT_INIT(&report);
 
     // Checks for Webcam and Driver Initialization Errors                                                
-    if (!cap.isOpened())                        
+    if (!cam.isOpened())                        
         return -1;
     else if (client == nullptr){
         std::cerr << "Not enough memory for driver." << std::endl;
@@ -193,9 +224,9 @@ int APIENTRY wWinMain(
         return -1;
     }
 
-    //report.wButtons = 0;
-    //vigem_target_x360_update(client, pad, report);
-    //Sleep(1000);
+    char a[40];
+    int count = 0;
+    bool b;
 
     /* Main message loop
     Dispatches message to WndProc
@@ -206,6 +237,84 @@ int APIENTRY wWinMain(
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+
+        b = cam.read(img);
+
+        if (!b) {
+            std::cerr << "Can't read from webcam." << std::endl;
+            return -1;
+        }
+
+        Rect roi(0, 0, img.cols, img.rows);
+        img_roi = img(roi);
+        img_gray = gray_image(img_gray, img_roi);
+        img_threshold = threshold_image(img_gray, img_threshold);
+
+                vector<vector<Point> >contours;
+                vector<Vec4i>hierarchy;
+                findContours(img_threshold, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point());
+                if (contours.size() > 0) {
+                    int indexOfBiggestContour = -1;
+                    int sizeOfBiggestContour = 0;
+
+                    for (int i = 0; i < contours.size(); i++) {
+                        if (contours[i].size() > sizeOfBiggestContour) {
+                            sizeOfBiggestContour = contours[i].size();
+                            indexOfBiggestContour = i;
+                        }
+                    }
+                    vector<vector<int> >hull(contours.size());
+                    vector<vector<Point> >hullPoint(contours.size());
+                    vector<vector<Vec4i> >defects(contours.size());
+                    vector<vector<Point> >defectPoint(contours.size());
+                    vector<vector<Point> >contours_poly(contours.size());
+                    Point2f rect_point[4];
+                    vector<Rect> boundRect(contours.size());
+                    for (int i = 0; i < contours.size(); i++) {
+                        if (contourArea(contours[i]) > 5000) {
+                            convexHull(contours[i], hull[i], true);
+                            convexityDefects(contours[i], hull[i], defects[i]);
+                            if (indexOfBiggestContour == i) {
+                                for (int k = 0; k < hull[i].size(); k++) {
+                                    int ind = hull[i][k];
+                                    hullPoint[i].push_back(contours[i][ind]);
+                                }
+                                count = 0;
+
+                                for (int k = 0; k < defects[i].size(); k++) {
+                                    if (defects[i][k][3] > 13 * 256) {
+                                        /*   int p_start=defects[i][k][0];   */
+                                        int p_end = defects[i][k][1];
+                                        int p_far = defects[i][k][2];
+                                        defectPoint[i].push_back(contours[i][p_far]);
+                                        circle(img_roi, contours[i][p_end], 3, Scalar(0, 255, 0), 2);
+                                        count++;
+                                    }
+
+                                }
+
+                                if (count >= 0 && count <= 5)
+                                    currentGesture = gestureList[count];
+                                else
+                                    currentGesture = gestureList[0];
+
+                                putText(img, "Count: "+std::to_string(count), Point(70, 70), FONT_HERSHEY_SIMPLEX, 3, Scalar(255, 0, 0), 2, 8, false);
+
+                            }
+                        }
+
+                    }
+
+                   // if (waitKey(30) == 27) {
+                    //    return;
+                   // }
+
+                }
+
+        //cap >> frame;
+        imshow("Original_image", img);
+        //imshow("Webcam Window", frame);
 
         // Button Press
        report.wButtons = currentGesture.assignedAction.buttonPressed;
@@ -271,8 +380,6 @@ int APIENTRY wWinMain(
            report.bRightTrigger = 0;
       
        vigem_target_x360_update(client, pad, report);
-       cap >> frame;
-       imshow("Webcam Window", frame);
     }
 
     return (int)msg.wParam;
