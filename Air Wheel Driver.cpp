@@ -312,8 +312,9 @@ int APIENTRY wWinMain(
 
                 }
 
-        //cap >> frame;
         imshow("Original_image", img);
+
+        //cap >> frame;
         //imshow("Webcam Window", frame);
 
         // Button Press
